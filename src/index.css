@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-abyss-950 text-silt-200 antialiased;
+  }
+
+  /*
+   * The water column — light at the surface, pressure and dark below — painted
+   * on its own fixed layer rather than as a `background-attachment: fixed` on
+   * the body. A fixed attachment on a gradient this large forces the whole
+   * background to repaint on every scroll frame, which is expensive on mobile
+   * and can drop the compositor entirely. A fixed-position element behind the
+   * content gets the same effect for the cost of one composited layer.
+   */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-color: theme('colors.abyss.950');
+    background-image:
+      radial-gradient(90rem 48rem at 50% -18rem, rgba(34, 189, 232, 0.13), transparent 62%),
+      radial-gradient(60rem 40rem at 88% 8%, rgba(10, 158, 201, 0.07), transparent 60%);
+  }
+
+  /* Tabular numerals everywhere a figure could change, so columns of readings
+     do not jitter as they update. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply rounded-lg border border-white/[0.07] bg-abyss-900/70 backdrop-blur-sm;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 18px 40px -28px rgba(0, 0, 0, 0.9);
+  }
+
+  .panel-head {
+    @apply flex items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3.5;
+  }
+
+  /* The small capitalised label that names a reading on an instrument. */
+  .meter-label {
+    @apply font-mono text-[10px] uppercase tracking-[0.18em] text-silt-500;
+  }
+
+  .readout {
+    @apply tnum font-mono font-semibold text-white;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded border px-2 py-0.5 font-mono text-[10px]
+           uppercase tracking-[0.14em];
+  }
+
+  .nav-link {
+    @apply relative flex items-center gap-2 rounded-md px-3 py-2 text-[13px] font-medium
+           text-silt-400 transition-colors duration-200 hover:text-flow-200;
+  }
+
+  .nav-link-active {
+    @apply bg-flow-400/10 text-flow-200;
+  }
+
+  .data-row {
+    @apply grid items-center gap-4 border-b border-white/[0.04] px-5 py-3 text-[13px]
+           transition-colors duration-200 last:border-b-0 hover:bg-white/[0.02];
+  }
+
+  .field {
+    @apply w-full rounded border border-white/10 bg-abyss-800 px-3 py-2 font-mono text-[13px]
+           text-white outline-none transition-colors duration-200
+           focus:border-flow-400/60 focus:ring-1 focus:ring-flow-400/30;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-3.5 py-2 text-[13px]
+           font-medium transition-all duration-200 active:scale-[0.98]
+           disabled:pointer-events-none disabled:opacity-40;
+  }
+
+  .btn-primary {
+    @apply btn bg-flow-400 text-abyss-950 hover:bg-flow-300;
+  }
+
+  .btn-ghost {
+    @apply btn border border-white/10 text-silt-300 hover:border-flow-400/40 hover:text-flow-200;
+  }
+}
+
+/* The band scale is used in enough places that it earns its own tokens. */
+.band-A { @apply border-emerald-400/30 bg-emerald-400/10 text-emerald-300; }
+.band-B { @apply border-flow-400/30 bg-flow-400/10 text-flow-200; }
+.band-C { @apply border-amber-400/30 bg-amber-400/10 text-amber-300; }
+.band-D { @apply border-loss-400/40 bg-loss-400/10 text-loss-300; }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
