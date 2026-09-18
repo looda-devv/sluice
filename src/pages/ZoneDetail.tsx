@@ -6,6 +6,7 @@ import { calculateUarl, leakageAfterPressureChange, recoverableLossesKlDay } fro
 import { BandChip, Meter, Panel, Stat } from '../components/ui';
 import { FlowProfileChart } from '../components/FlowProfileChart';
 import { Sparkline } from '../components/charts';
+import { ModelledNotice } from '../components/ModelledNotice';
 import {
   formatDate,
   formatHour,
@@ -50,6 +51,8 @@ export default function ZoneDetail() {
 
   return (
     <div className="space-y-6">
+      <ModelledNotice />
+
       <div>
         <Link
           to="/leak-detection"

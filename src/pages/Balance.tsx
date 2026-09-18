@@ -4,6 +4,7 @@ import { BENCHMARKS } from '../engine';
 import { Panel, Stat } from '../components/ui';
 import { BalanceBar } from '../components/charts';
 import { formatPct, formatRand, formatVolume } from '../lib/format';
+import { ModelledNotice } from '../components/ModelledNotice';
 
 /**
  * The municipal water balance, and the same balance per zone.
@@ -35,6 +36,8 @@ export default function Balance() {
 
   return (
     <div className="space-y-6">
+      <ModelledNotice />
+
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold tracking-tight text-white">Water balance</h1>
