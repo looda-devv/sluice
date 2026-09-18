@@ -1,34 +1,113 @@
 # Sluice
 
-Non-revenue water intelligence for South African municipalities — minimum night flow
-leak detection, the IWA standard water balance, and Infrastructure Leakage Index
-benchmarking across a metered distribution network.
+Non-revenue water intelligence for South Africa — the published national,
+provincial and municipal water-loss data, analysed with the methods the sector
+actually uses: the IWA water balance, the Infrastructure Leakage Index, and
+minimum night flow leak detection.
 
-Built with React, TypeScript, Vite and Tailwind CSS. No backend: the analysis engine is
-pure TypeScript and the network data is generated deterministically, so the project runs
-anywhere `npm install` does.
+Built with React, TypeScript, Vite and Tailwind CSS. The analysis engine is
+pure TypeScript with no backend, so the project runs anywhere `npm install`
+does.
 
 ---
 
 ## The problem
 
-South Africa loses roughly **47% of its municipal water** before anyone pays for it. The
-global average is nearer 30%. That gap is not a drought — it is leaking pipes, faulty
-meters, and connections nobody is billing, and it is the reason Gauteng now has water
-shedding to go with its load shedding. The country also uses about 218 litres per person
-per day against a world average near 173, and a large part of that difference never
-reaches a person at all.
+South Africa loses **46.4% of its municipal water** before anyone pays for it.
+The global average is nearer 30%. That is 1 988 million cubic metres a year, of
+which 1 395 million never reaches a customer at all — it leaks into the ground.
+At the cost of bulk potable water that is roughly **R 20 billion a year** in
+water the country treated, pumped and pressurised and then lost.
 
-The frustrating part is that the water is already paid for. It has been abstracted,
-treated, pumped and pressurised, and then it runs into the ground. A kilolitre recovered
-from a leak is a kilolitre that does not have to be bought, and it is available now
-rather than after a decade of building new supply.
+That gap is not a drought. It is leaking pipes, faulty meters and connections
+nobody is billing, and it is why Gauteng now has water shedding to go with its
+load shedding. The country also uses about 216 litres per person per day
+against a world average near 173, and a large part of that difference never
+reaches a person.
 
-The obstacle is usually not willingness. It is that a municipality cannot act on a number
-it does not have: which zone is leaking, how much of that leak is worth chasing, and
-whether the crew sent out on Monday will recover more than it costs to send them.
+The frustrating part is that the water is already paid for. A kilolitre
+recovered from a leak is a kilolitre that does not have to be bought, and it is
+available now rather than after a decade of building new supply.
 
-Sluice computes those three things.
+## The data is real
+
+Every national, provincial and municipal figure comes from the Department of
+Water and Sanitation and is reproduced unmodified:
+
+| Source | What it provides |
+| --- | --- |
+| [No Drop Watch Report](https://ws.dws.gov.za/iris/releases/NDWR.pdf) | The 2021/22 IWA water balance, nationally and for all nine provinces, with ILI, CARL and per-capita consumption |
+| [2023 No Drop Report](https://ws.dws.gov.za/iris/releases/ND_2023_Report.pdf) | The regulator's assessment of all 144 water services authorities |
+
+**144, not 257.** Only a Water Services Authority is legally responsible for
+supplying water and therefore has a water balance to report; in most rural
+districts the district municipality holds that duty for every local
+municipality inside it. A list of all 257 municipalities would be longer and
+would mean less.
+
+### Getting it out of the PDFs
+
+The balances are printed as multi-column diagrams. Flattened to text the
+columns interleave, so a value lands on the same line as a label it has nothing
+to do with, and reading by position produces numbers that look entirely
+plausible and are wrong.
+
+A water balance is over-determined, though — six identities constrain thirteen
+quantities — so `scripts/extract_dws.py` takes every number printed on a page
+and searches for the assignment that satisfies all of them. That is still not
+quite enough: where authorised consumption and water losses happen to be close
+in size they can swap without breaking any identity, and three provinces
+genuinely admit two valid readings. The report states non-revenue water in
+prose for each region, so the solver is pinned to that figure and prefers
+readings whose terms are actually printed.
+
+Two checks say the result is faithful:
+
+- every balance closes on all six IWA identities; and
+- the nine provinces sum to the published national totals — 4 282.5 Mm³ of
+  system input and 1 988.5 Mm³ of non-revenue water, to within a thousandth of
+  a percent.
+
+Each page was then read directly to confirm the assignment, and the 144 WSA
+records reproduce the report's own province counts and its table of top scorers
+exactly. All of this is asserted in the test suite.
+
+### What the source gets wrong, and what this does about it
+
+Three inconsistencies survive in the published data. None is corrected; all are
+surfaced:
+
+- **North West** books 0.19 Mm³ more unbilled water in its components than in
+  its stated total.
+- **Northern Cape**'s authorised consumption exceeds the sum of its parts by
+  0.59 Mm³. The province page says so in a banner.
+- The provinces together book **4.88 Mm³ more of their losses as apparent
+  rather than real** than the national balance does. Total losses still agree
+  exactly — the gap cancels — and it lands exactly where you would expect, on
+  the one line in a water balance that no meter measures: the split between
+  water that leaked away and water that was used but never billed.
+
+Thirty WSAs submitted no audit information. Their score is `null`, not `0`, and
+they are excluded from averages rather than charted as failures. A municipality
+that did not report is not thereby the worst performer — it is unmeasured, and
+saying otherwise would be an assertion the data does not support. (The report's
+own narrative counts 24 at 0%, six fewer than the entries lacking a score; that
+discrepancy is left as found.)
+
+### What is *not* published, and why part of this is modelled
+
+**Per-municipality water balances.** The No Drop report scores each of the 144
+authorities, but the underlying volumes sit in scorecard *images* rather than
+machine-readable tables. So this project analyses balances at national and
+provincial level and reports the regulatory score — never an invented balance —
+for each municipality.
+
+**Hourly bulk-meter telemetry.** Minimum night flow analysis needs a reading
+every hour from a zone's inlet meter. That data lives in each municipality's
+SCADA system and nobody publishes it. The leak-detection section therefore
+demonstrates the method on a modelled network, is reachable only under a
+"Worked example" heading, and carries a notice on every page. Blurring that
+line would be the easiest way to make this project dishonest.
 
 ## What it does
 
@@ -124,21 +203,22 @@ Reservoir projection counts down to the pressure-failure level, and models what 
 a share of the leak buys. The repair queue prices a survey campaign per zone, computes the
 volume sitting above a realistic target ILI, and sorts by payback period.
 
-## The data is synthetic, and that is deliberate
+## The modelled network, and why it earns its place
 
-**Thuso Metropolitan Municipality does not exist.** Every meter reading, billing figure
-and reservoir level is generated from a fixed seed, so the network is identical on every
-load.
+**Thuso Metropolitan Municipality does not exist.** It backs the leak-detection
+section only. Every meter reading in it is generated from a fixed seed, so the
+network is identical on every load.
 
-What is not invented is the shape of it. The ten zones span the range a real South African
-metro contains — 1960s cast iron under a CBD at 72 m of head, post-2010 subsidised
-housing, an informal settlement on standpipes, an industrial park — and the losses are
-scaled so the municipality lands where the metros actually report, against a national
-figure near 47%.
+What is not invented is the shape of it. The ten zones span the range a real
+South African metro contains — 1960s cast iron under a CBD at 72 m of head,
+post-2010 subsidised housing, an informal settlement on standpipes, an
+industrial park — and the losses are scaled to sit inside the range the real
+provinces report.
 
-The generator injects a leak of a **known size** into each zone and hides it inside a
-realistic demand curve, with pressure that sags under daytime load. The test suite then
-asserts that the night flow analysis finds it again, within 12%:
+The reason to model it at all is that it makes the method *testable*. The
+generator injects a leak of a **known size** into each zone and hides it inside
+a realistic demand curve, with pressure that sags under daytime load. The test
+suite then asserts that the night flow analysis finds it again, within 12%:
 
 ```
 TC-01   estimated 1 402 kL/d   true 1 392   error  +0.8%
@@ -146,20 +226,21 @@ KG-04   estimated 1 746 kL/d   true 1 776   error  −1.7%
 NF-01   estimated   627 kL/d   true   624   error  +0.5%
 ```
 
-That check is only possible because the data is synthetic. On a real network nobody knows
-the true leakage — which is precisely why the method exists.
+That check is only possible because the data is synthetic. On a real network
+nobody knows the true leakage — which is precisely why the method exists, and
+precisely why no published dataset could be used to validate it.
 
-One consequence worth stating: building the demand curve from a published *inflow* profile
-would double-count the leak, because a metered inflow trace never falls as far at 03:00 as
-consumption alone does — leakage is holding it up. The generator models consumption and
-leakage separately for exactly this reason.
+One consequence worth stating: building the demand curve from a published
+*inflow* profile would double-count the leak, because a metered inflow trace
+never falls as far at 03:00 as consumption alone does — leakage is holding it
+up. The generator models consumption and leakage separately for that reason.
 
 ## Running it
 
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # 41 tests across the engine and the pipeline
+npm test           # 67 tests: engine, published data, and the modelled pipeline
 npm run build      # typecheck + production bundle
 ```
 
@@ -173,11 +254,15 @@ src/
 │   ├── ili.ts           UARL, ILI, recoverable losses
 │   ├── drawdown.ts      reservoir projection
 │   └── prioritise.ts    repair queue ranking
-├── data/            the fictional network and its telemetry generator
+├── data/
+│   ├── dws/             published DWS figures — regions, 144 WSAs, engine adapter
+│   ├── network.ts       the modelled network, for the worked example only
+│   └── telemetry.ts     its deterministic telemetry generator
 ├── state/           derived model, computed once and shared
 ├── components/      charts and UI primitives (SVG, no chart library)
-├── pages/           control room, zone detail, balance, queue, reservoirs, method
+├── pages/           national, province, municipalities, method + worked example
 └── lib/             en-ZA number and unit formatting
+scripts/             PDF extraction and the balance solver
 ```
 
 ## Notes on the interface

@@ -217,29 +217,85 @@ export default function Method() {
           </div>
         </Panel>
 
-        <Panel title="About the data" subtitle="What is real here and what is not">
+        <Panel title="Where the numbers come from" subtitle="Two government PDFs, and what they do and do not contain">
           <div className="space-y-3 px-5 py-5 text-[12px] leading-relaxed text-silt-400">
             <p>
-              <span className="text-silt-200">Thuso Metropolitan Municipality does not exist.</span>{' '}
-              Every meter reading, billing figure and reservoir level in this dashboard is
-              generated from a fixed seed, so the network is identical on every load.
+              The national, provincial and municipal figures are published by the Department
+              of Water and Sanitation and are reproduced unmodified:
+            </p>
+            <ul className="space-y-2">
+              <li>
+                <a
+                  href="https://ws.dws.gov.za/iris/releases/NDWR.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-flow-300 underline underline-offset-4 hover:text-flow-200"
+                >
+                  No Drop Watch Report
+                </a>{' '}
+                — the 2021/22 IWA water balance, nationally and for each of the nine
+                provinces, with ILI, CARL and per-capita consumption.
+              </li>
+              <li>
+                <a
+                  href="https://ws.dws.gov.za/iris/releases/ND_2023_Report.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-flow-300 underline underline-offset-4 hover:text-flow-200"
+                >
+                  2023 No Drop Report
+                </a>{' '}
+                — the regulator's assessment of all 144 water services authorities.
+              </li>
+            </ul>
+            <p>
+              The balances are printed as multi-column diagrams. Flattened to text the
+              columns interleave, so reading a value by its position next to a label
+              produces numbers that look plausible and are wrong. Each balance is instead
+              solved against its own six identities and pinned to the non-revenue water
+              figure the report states in prose — then confirmed by reading the page.
             </p>
             <p>
-              What is not invented is the shape of it. The zones span the range a real
-              South African metro contains — 1960s cast iron under a CBD at 72 m of head,
-              post-2010 subsidised housing, an informal settlement on standpipes, an
-              industrial park — and the losses are scaled so the municipality lands in the
-              range the metros actually report, against a national figure near 47%.
-            </p>
-            <p>
-              The generator injects a leak of a known size into each zone and hides it
-              inside a realistic demand curve. The test suite then asserts that the night
-              flow analysis finds it again, within 12%. That check is only possible because
-              the data is synthetic — on a real network nobody knows the true leakage,
-              which is precisely why the method exists.
+              Two checks say the result is faithful: every balance closes, and the nine
+              provinces sum to the published national totals for system input and
+              non-revenue water. The extraction script is in the repository.
             </p>
           </div>
         </Panel>
+
+        <Panel title="What is not published" subtitle="The honest limits of this dashboard">
+          <div className="space-y-3 px-5 py-5 text-[12px] leading-relaxed text-silt-400">
+            <p>
+              <span className="text-silt-200">Per-municipality water balances.</span> The No
+              Drop report scores each of the 144 authorities, but the underlying volumes sit
+              in scorecard images rather than machine-readable tables. This dashboard
+              therefore analyses balances at national and provincial level, and reports the
+              regulatory score — not an invented balance — for each municipality.
+            </p>
+            <p>
+              <span className="text-silt-200">Hourly bulk-meter telemetry.</span> Minimum
+              night flow analysis needs a reading every hour from a zone's inlet meter. That
+              data lives in each municipality's SCADA system and is not published by anyone,
+              which is why the leak-detection section demonstrates the method on a modelled
+              network instead of pretending to real zones.
+            </p>
+            <p>
+              <span className="text-silt-200">Two gaps in the source itself.</span> North
+              West's unbilled components exceed their stated total by 0,19 Mm³, and Northern
+              Cape's authorised consumption exceeds its parts by 0,59 Mm³. Both are flagged
+              in the interface and carried through as printed. The provinces also book 4,88
+              Mm³ more of their losses as apparent rather than real than the national balance
+              does — the split between water that leaked and water that was used but never
+              billed being the one line no meter measures.
+            </p>
+            <p className="text-silt-500">
+              Where a municipality submitted nothing, its score is shown as "—" and it is
+              excluded from averages. It is not charted as a zero: failing to report is not
+              the same as performing badly, and the data does not support saying otherwise.
+            </p>
+          </div>
+        </Panel>
+
       </div>
     </div>
   );

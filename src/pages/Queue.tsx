@@ -6,6 +6,7 @@ import { buildPriorityQueue } from '../engine';
 import { BandChip, Empty, Panel, Stat } from '../components/ui';
 import { formatDate, formatNumber, formatRand, formatVolume } from '../lib/format';
 import type { RepairType } from '../types';
+import { ModelledNotice } from '../components/ModelledNotice';
 
 const REPAIR_TYPES: RepairType[] = [
   'Mains burst',
@@ -56,6 +57,8 @@ export default function Queue() {
 
   return (
     <div className="space-y-6">
+      <ModelledNotice />
+
       <div>
         <h1 className="text-xl font-semibold tracking-tight text-white">Repair queue</h1>
         <p className="mt-1.5 max-w-3xl text-[13px] leading-relaxed text-silt-400">
@@ -136,7 +139,7 @@ export default function Queue() {
 
             <div className="min-w-0">
               <Link
-                to={`/zones/${entry.dma.id}`}
+                to={`/leak-detection/zones/${entry.dma.id}`}
                 className="font-medium text-white transition-colors hover:text-flow-200"
               >
                 <span className="mr-2 font-mono text-[11px] text-flow-300">

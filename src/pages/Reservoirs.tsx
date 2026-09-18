@@ -5,6 +5,7 @@ import { projectDrawdown, projectWithLeakageReduction } from '../engine';
 import { Meter, Panel, Stat } from '../components/ui';
 import { DrawdownChart } from '../components/charts';
 import { formatDays, formatNumber, formatPct, formatVolume } from '../lib/format';
+import { ModelledNotice } from '../components/ModelledNotice';
 
 const STATUS_TONE = {
   recovering: 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300',
@@ -27,6 +28,8 @@ export default function Reservoirs() {
 
   return (
     <div className="space-y-6">
+      <ModelledNotice />
+
       <div>
         <h1 className="text-xl font-semibold tracking-tight text-white">
           Reservoirs and drawdown
@@ -96,7 +99,7 @@ export default function Reservoirs() {
                   {zones.map((z) => (
                     <Link
                       key={z.dma.id}
-                      to={`/zones/${z.dma.id}`}
+                      to={`/leak-detection/zones/${z.dma.id}`}
                       className="chip border-white/10 text-silt-400 transition-colors hover:border-flow-400/40 hover:text-flow-200"
                     >
                       {z.dma.code}

@@ -12,6 +12,7 @@ import {
   recoverableLossesKlDay,
 } from '../index';
 import type { Assumptions, BillingRecord, Dma, FlowReading, Reservoir } from '../../types';
+import { formatRand, formatVolume } from '../../lib/format';
 
 const assumptions: Assumptions = {
   bulkWaterCostRandPerKl: 14.5,
@@ -269,5 +270,31 @@ describe('repair prioritisation', () => {
     const queue = buildPriorityQueue([highPressure], { small: 600 }, assumptions);
 
     expect(queue[0].recommendedAction).toMatch(/pressure-reducing valve/);
+  });
+});
+
+describe('formatting across six orders of magnitude', () => {
+  // en-ZA groups thousands with a non-breaking space and uses a comma for the
+  // decimal, which is correct South African usage. Writing an ordinary space
+  // in these expectations produces a failure whose diff looks identical to
+  // the eye, so the separator is spelled out.
+  const NB = '\u00a0';
+
+  it('scales volume to the unit that reads best', () => {
+    expect(formatVolume(450)).toBe('450 kL');
+    expect(formatVolume(24_000)).toBe('24,0 Ml');
+    // The national real-loss figure: 1 395 million m3 a year.
+    expect(formatVolume(1_395_183_000)).toBe(`1${NB}395,2 Mm³`);
+  });
+
+  it('carries rand into billions rather than printing thousands of millions', () => {
+    expect(formatRand(8_400)).toBe(`R 8${NB}400`);
+    expect(formatRand(288_000)).toBe('R 288k');
+    expect(formatRand(5_400_000)).toBe('R 5,4m');
+    expect(formatRand(20_230_153_500)).toBe('R 20,2bn');
+  });
+
+  it('keeps the cents on a tariff', () => {
+    expect(formatRand(14.5, { compact: false, decimals: 2 })).toBe('R 14,50');
   });
 });

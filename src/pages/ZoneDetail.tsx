@@ -28,7 +28,7 @@ export default function ZoneDetail() {
       <Panel>
         <p className="px-5 py-10 text-center text-[13px] text-silt-400">
           No zone with that code.{' '}
-          <Link to="/" className="text-flow-300 underline underline-offset-4">
+          <Link to="/leak-detection" className="text-flow-300 underline underline-offset-4">
             Back to the control room
           </Link>
           .
@@ -52,7 +52,7 @@ export default function ZoneDetail() {
     <div className="space-y-6">
       <div>
         <Link
-          to="/"
+          to="/leak-detection"
           className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase
                      tracking-[0.16em] text-silt-500 transition-colors hover:text-flow-300"
         >

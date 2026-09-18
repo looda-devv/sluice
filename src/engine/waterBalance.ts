@@ -129,19 +129,28 @@ export function combineWaterBalances(balances: WaterBalance[]): WaterBalance {
 }
 
 /**
- * Published national benchmarks, for context on the dashboard.
+ * Published national benchmarks.
  *
- * Source: Department of Water and Sanitation, No Drop Report (2023), which put
- * national non-revenue water at roughly 47% against a global average nearer
- * 30%. Treated here as a reference line to judge a zone against, not as an
- * input to any calculation.
+ * Two reporting years appear in this project and they are not interchangeable.
+ * The Department of Water and Sanitation's No Drop Watch Report gives a full
+ * IWA balance for 2021/22, which is the data the dashboard analyses and which
+ * puts non-revenue water at 46.4%. The 2023 No Drop Report assessed 2022/23
+ * and put it at 47.4% — a headline figure without a machine-readable balance
+ * behind it. Both are cited where they apply; neither is used to stand in for
+ * the other.
+ *
+ * These are reference lines for judging a zone against, never inputs to a
+ * calculation.
  */
 export const BENCHMARKS = {
-  saNationalNrwPct: 47,
+  /** 2022/23, DWS No Drop Report 2023 — the most recent published figure. */
+  saNationalNrwPct: 47.4,
+  /** 2021/22, DWS No Drop Watch Report — the year with a full balance. */
+  saNrwPct2021_22: 46.4,
   globalAverageNrwPct: 30,
   /** Best-practice target for a well-run municipal system. */
   targetNrwPct: 15,
-  /** SA average domestic use, litres/person/day, against a world average near 173. */
-  saLitresPerCapitaPerDay: 218,
+  /** SA average, litres/person/day, 2021/22, against a world average near 173. */
+  saLitresPerCapitaPerDay: 216,
   worldLitresPerCapitaPerDay: 173,
 } as const;

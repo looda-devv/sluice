@@ -4,6 +4,7 @@ import { useNetwork } from '../state/network-context';
 import { BENCHMARKS } from '../engine';
 import { BandChip, Meter, Panel, Stat } from '../components/ui';
 import { Sparkline } from '../components/charts';
+import { ModelledNotice } from '../components/ModelledNotice';
 import {
   formatLpcd,
   formatNumber,
@@ -39,6 +40,8 @@ export default function Overview() {
 
   return (
     <div className="space-y-6">
+      <ModelledNotice />
+
       <div>
         <h1 className="text-xl font-semibold tracking-tight text-white">Control room</h1>
         <p className="mt-1.5 max-w-3xl text-[13px] leading-relaxed text-silt-400">
@@ -59,10 +62,10 @@ export default function Overview() {
               <>
                 {nrwGapToNational < 0
                   ? `${formatPct(Math.abs(nrwGapToNational), 0)} better than the national
-                     figure of ${BENCHMARKS.saNationalNrwPct}%`
+                     figure of ${formatPct(BENCHMARKS.saNationalNrwPct)}`
                   : `${formatPct(nrwGapToNational, 0)} worse than the national figure of
-                     ${BENCHMARKS.saNationalNrwPct}%`}
-                , against a global average nearer {BENCHMARKS.globalAverageNrwPct}%.
+                     ${formatPct(BENCHMARKS.saNationalNrwPct)}`}
+                , against a global average nearer {formatPct(BENCHMARKS.globalAverageNrwPct, 0)}.
               </>
             }
           />
@@ -152,7 +155,7 @@ export default function Overview() {
           return (
             <Link
               key={zone.dma.id}
-              to={`/zones/${zone.dma.id}`}
+              to={`/leak-detection/zones/${zone.dma.id}`}
               className="data-row grid-cols-2 md:grid-cols-[2.1fr_1fr_1fr_0.9fr_1.1fr]"
             >
               <div className="col-span-2 min-w-0 md:col-span-1">
