@@ -11,6 +11,10 @@ does.
 
 ---
 
+**[Live site](https://sluice-five.vercel.app)** · [48-second demo](media/sluice-demo.mp4)
+
+---
+
 ## The problem
 
 South Africa loses **46.4% of its municipal water** before anyone pays for it.
